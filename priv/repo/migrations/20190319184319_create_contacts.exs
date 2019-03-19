@@ -7,6 +7,7 @@ defmodule Contacts.Repo.Migrations.CreateContacts do
       add :last_name, :string
       add :email, :string
       add :phone_number, :string
+      add :active, :boolean, default: true
     end
   end
 end
