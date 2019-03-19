@@ -5,8 +5,11 @@ defmodule Contacts.RouterTest do
   use Plug.Test
 
   setup do
+    # Ensure the database is checkouted
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Contacts.Repo)
+
     {:ok, body} = Poison.encode(%{name: "FirstName", last_name: "LastName", email: "email@sh.com", phone_number: "1234"})
-    %{body: body, opts: Contacts.Router.init([])}  
+    %{body: body, opts: Contacts.Router.init([])}
   end
 
   test "get '/' returns 404", %{opts: opts} do
