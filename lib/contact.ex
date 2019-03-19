@@ -1,4 +1,8 @@
 defmodule Contact do
+  @moduledoc """
+  Represents the type of a contact.
+  """
+
   require Record
   Record.defrecord(:contact, name: "", last_name: "", email: "", phone_number: "")
 
