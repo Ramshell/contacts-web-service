@@ -1,4 +1,7 @@
 defmodule Contacts.Router do
+  @moduledoc """
+  Provides the basic routing of the contacts app.
+  """
   use Plug.Router
 
   require Logger
