@@ -51,7 +51,7 @@ defmodule Contacts.RouterTest do
     conn2 = conn(:get, "/contacts")
 
     # Invoke the plug
-    conn2 = Contacts.Router.call(conn, @opts)
+    conn2 = Contacts.Router.call(conn2, @opts)
 
     # Assert the response and status
     assert conn2.state == :sent

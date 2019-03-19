@@ -7,6 +7,7 @@ defmodule Contacts.Contact do
 
     @primary_key {:last_name, :string, autogenerate: false}
   
+    @derive {Poison.Encoder, only: [:name, :last_name, :email, :phone_number]}
     schema "contacts" do
       field :name, :string
       field :email, :string
