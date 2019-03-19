@@ -1,17 +1,20 @@
 defmodule Contacts.RouterTest do
   @moduledoc false
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Plug.Test
 
-  @opts Contacts.Router.init([])
+  setup do
+    {:ok, body} = Poison.encode(%{name: "FirstName", last_name: "LastName", email: "email@sh.com", phone_number: "1234"})
+    %{body: body, opts: Contacts.Router.init([])}  
+  end
 
-  test "get '/' returns 404" do
+  test "get '/' returns 404", %{opts: opts} do
     # Create a test connection
     conn = conn(:get, "/")
 
     # Invoke the plug
-    conn = Contacts.Router.call(conn, @opts)
+    conn = Contacts.Router.call(conn, opts)
 
     # Assert the response and status
     assert conn.state == :sent
@@ -29,11 +32,6 @@ defmodule Contacts.RouterTest do
     assert conn.state == :sent
     assert conn.status == 200
     assert conn.resp_body == "[]"
-  end
-
-  setup do
-    {:ok, body} = Poison.encode(%{name: "FirstName", last_name: "LastName", email: "email@sh.com", phone_number: "1234"})
-    %{body: body}  
   end
 
   test "post '/contacts' returns 201 and creates the contact", %{body: body} do
