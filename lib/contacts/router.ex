@@ -15,7 +15,7 @@ defmodule Contacts.Router do
 
   @content_type "application/json"
 
-  get "/users" do
+  get "/contacts" do
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(200, Poison.encode!([]))
