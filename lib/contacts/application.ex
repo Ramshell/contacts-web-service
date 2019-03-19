@@ -7,7 +7,8 @@ defmodule Contacts.Application do
     {:ok, [port: port]} = config()
 
     children = [
-      Plug.Cowboy.child_spec(scheme: :http, plug: Contacts.Router, options: [port: port])
+      Plug.Cowboy.child_spec(scheme: :http, plug: Contacts.Router, options: [port: port]),
+      Contacts.Repo
     ]
 
     opts = [strategy: :one_for_one, name: Contacts.Supervisor]
