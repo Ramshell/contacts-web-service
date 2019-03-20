@@ -38,7 +38,7 @@ defmodule Contacts.Router do
       nil ->
         conn
         |> put_resp_content_type(@content_type)
-        |> send_resp(404, "")
+        |> send_resp(404, "not found")
       contact ->
         conn
         |> put_resp_content_type(@content_type)
@@ -51,6 +51,21 @@ defmodule Contacts.Router do
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(204, "")
+  end
+
+  patch "/contacts/:last_name" do
+    {:ok, body, _conn} = read_body(conn)
+    case Contacts.Repo.get_by_last_name(last_name) do
+      nil ->
+        conn
+        |> put_resp_content_type(@content_type)
+        |> send_resp(404, "not found")
+      contact ->
+        {:ok, result} = Contacts.Repo.update_with_diff(contact, Poison.decode!(body))
+        conn
+        |> put_resp_content_type(@content_type)
+        |> send_resp(204, Poison.encode!(result))
+    end
   end
 
   match _ do
