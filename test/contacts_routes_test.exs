@@ -37,6 +37,37 @@ defmodule Contacts.RouterTest do
     assert conn.resp_body == "[]"
   end
 
+  test "GET '/contacts' returns the contacts ordered by last_name", %{opts: opts} do
+    to_insert = [
+      %Contacts.Contact{last_name: "Ruffus"},
+      %Contacts.Contact{last_name: "Buffus"},
+      %Contacts.Contact{last_name: "Auri"}
+    ]
+
+    # Insert the contacts into the db
+    Enum.each to_insert, fn x ->
+      Contacts.Repo.insert(x)
+    end
+
+    expected_contacts = [
+      %Contacts.Contact{last_name: "Auri"},
+      %Contacts.Contact{last_name: "Buffus"},
+      %Contacts.Contact{last_name: "Ruffus"}
+    ]
+    {:ok, expected_contacts_string} = Poison.encode(expected_contacts)
+
+    # Create a test connection
+    conn = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == expected_contacts_string
+  end
+
   test "POST '/contacts' returns 201 and creates the contact", %{body: body, opts: opts} do
     # Create a test connection
     conn = conn(:post, "/contacts", body)

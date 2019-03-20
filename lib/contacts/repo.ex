@@ -7,6 +7,7 @@ defmodule Contacts.Repo do
     def get_all() do
       Contacts.Contact
       |> Ecto.Query.where(active: true)
+      |> Ecto.Query.order_by(:last_name)
       |> all
     end
 
