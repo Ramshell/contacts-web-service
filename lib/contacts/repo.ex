@@ -17,6 +17,12 @@ defmodule Contacts.Repo do
       |> get(last_name)
     end
 
+    @spec update_with_diff(Contacts.Contact, map()) :: {atom, Contacts.Contact}
+    def update_with_diff(resource, diff) do
+      changeset = Contacts.Contact.changeset(resource, diff)
+      insert(changeset)
+    end
+
     @spec delete_by_last_name(String.t()) :: {atom, Contacts.Contact}
     def delete_by_last_name(last_name) do
       contact = get_by_last_name(last_name)

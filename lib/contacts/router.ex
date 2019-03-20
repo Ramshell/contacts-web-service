@@ -27,8 +27,7 @@ defmodule Contacts.Router do
 
   post "/contacts" do
     {:ok, body, _conn} = read_body(conn)
-    changeset = Contacts.Contact.changeset(%Contacts.Contact{}, Poison.decode!(body))
-    {:ok, result} = Contacts.Repo.insert(changeset)
+    {:ok, result} = Contacts.Repo.update_with_diff(%Contacts.Contact{}, Poison.decode!(body))
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(201, Poison.encode!(result))
