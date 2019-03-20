@@ -58,4 +58,21 @@ defmodule Contacts.RouterTest do
     assert conn2.status == 200
     assert conn2.resp_body == "[#{body}]"
   end
+
+  test "GET '/contacts/:lastname' returns 200 and gets the correct contact", %{body: body} do
+
+    expected_contact = %Contacts.Contact{last_name: "Ruffus"}
+    Contacts.Repo.insert(expected_contact)
+
+    # Create a test connection
+    conn = conn(:get, "/contacts/Ruffus")
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == Poison.encode(expected_contact)
+  end
 end
