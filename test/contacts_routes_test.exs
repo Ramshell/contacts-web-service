@@ -101,4 +101,26 @@ defmodule Contacts.RouterTest do
     assert conn2.state == :sent
     assert conn2.status == 404
   end
+
+  test "PATCH '/contacts/:lastname' returns 204 and actually updates it", %{opts: opts} do
+
+    contact_to_insert = %Contacts.Contact{last_name: "Ruffus"}
+    Contacts.Repo.insert(contact_to_insert)
+
+    {:ok, update_delta} = Poison.encode(%{name: "Martin"})
+
+    expected_contact = %Contacts.Contact{last_name: "Ruffus", name: "Martin"}
+    {:ok, expected_contact_string} = Poison.encode(expected_contact)
+
+    # Create a test connection
+    conn = conn(:patch, "/contacts/Ruffus", update_delta)
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 204
+    assert conn.resp_body == expected_contact_string
+  end
 end
