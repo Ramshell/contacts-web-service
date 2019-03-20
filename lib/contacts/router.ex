@@ -48,10 +48,10 @@ defmodule Contacts.Router do
   end
 
   delete "/contacts/:last_name" do
-    {:ok, updated} = Contacts.Repo.delete_by_last_name(last_name)
+    {:ok, _updated} = Contacts.Repo.delete_by_last_name(last_name)
     conn
     |> put_resp_content_type(@content_type)
-    |> send_resp(200, "")
+    |> send_resp(204, "")
   end
 
   match _ do

@@ -81,7 +81,6 @@ defmodule Contacts.RouterTest do
 
     expected_contact = %Contacts.Contact{last_name: "Ruffus"}
     Contacts.Repo.insert(expected_contact)
-    {:ok, expected_string_contact} = Poison.encode(expected_contact)
 
     # Create a test connection
     conn = conn(:delete, "/contacts/Ruffus")
@@ -91,7 +90,7 @@ defmodule Contacts.RouterTest do
 
     # Assert the response and status
     assert conn.state == :sent
-    assert conn.status == 200
+    assert conn.status == 204
     
     conn2 = conn(:get, "/contacts/Ruffus")
 
