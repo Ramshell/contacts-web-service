@@ -27,6 +27,7 @@ defmodule Contacts.MixProject do
       {:credo, "~> 0.10", except: :prod, runtime: false},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
     ]
   end
 end
