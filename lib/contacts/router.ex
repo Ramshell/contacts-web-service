@@ -25,13 +25,6 @@ defmodule Contacts.Router do
     |> send_resp(200, Poison.encode!(contacts))
   end
 
-  get "/contacts/:last_name" do
-    contact = Contacts.Repo.get_by_last_name(last_name)
-    conn
-    |> put_resp_content_type(@content_type)
-    |> send_resp(200, Poison.encode!(contact))
-  end
-
   post "/contacts" do
     {:ok, body, _conn} = read_body(conn)
     changeset = Contacts.Contact.changeset(%Contacts.Contact{}, Poison.decode!(body))
@@ -39,6 +32,26 @@ defmodule Contacts.Router do
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(201, Poison.encode!(result))
+  end
+
+  get "/contacts/:last_name" do
+    case Contacts.Repo.get_by_last_name(last_name) do
+      nil ->
+        conn
+        |> put_resp_content_type(@content_type)
+        |> send_resp(404, "")
+      contact ->
+        conn
+        |> put_resp_content_type(@content_type)
+        |> send_resp(200, Poison.encode!(contact))
+    end
+  end
+
+  delete "/contacts/:last_name" do
+    {:ok, updated} = Contacts.Repo.delete_by_last_name(last_name)
+    conn
+    |> put_resp_content_type(@content_type)
+    |> send_resp(200, "")
   end
 
   match _ do
