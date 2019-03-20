@@ -19,7 +19,7 @@ defmodule Contacts.Router do
   @content_type "application/json"
 
   get "/contacts" do
-    contacts = Contacts.Contact |> Contacts.Repo.all
+    contacts = Contacts.Repo.get_all()
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(200, Poison.encode!(contacts))
