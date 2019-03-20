@@ -92,6 +92,14 @@ defmodule Contacts.RouterTest do
     # Assert the response and status
     assert conn.state == :sent
     assert conn.status == 200
-    assert Contacts.Repo.get_all() == []
+    
+    conn2 = conn(:get, "/contacts/Ruffus")
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, @opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 404
   end
 end
