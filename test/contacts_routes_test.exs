@@ -76,4 +76,22 @@ defmodule Contacts.RouterTest do
     assert conn.status == 200
     assert conn.resp_body == expected_string_contact
   end
+
+  test "DELETE '/contacts/:lastname' returns 200 and actually deletes it", %{body: body} do
+
+    expected_contact = %Contacts.Contact{last_name: "Ruffus"}
+    Contacts.Repo.insert(expected_contact)
+    {:ok, expected_string_contact} = Poison.encode(expected_contact)
+
+    # Create a test connection
+    conn = conn(:delete, "/contacts/Ruffus")
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, @opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert Contacts.Repo.get_all() == []
+  end
 end
