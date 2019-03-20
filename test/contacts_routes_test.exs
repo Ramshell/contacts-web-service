@@ -12,7 +12,7 @@ defmodule Contacts.RouterTest do
     %{body: body, opts: Contacts.Router.init([])}
   end
 
-  test "get '/' returns 404", %{opts: opts} do
+  test "GET '/' returns 404", %{opts: opts} do
     # Create a test connection
     conn = conn(:get, "/")
 
@@ -24,7 +24,7 @@ defmodule Contacts.RouterTest do
     assert conn.status == 404
   end
 
-  test "get '/contacts' returns 200 and gets no contacts" do
+  test "GET '/contacts' returns 200 and gets no contacts" do
     # Create a test connection
     conn = conn(:get, "/contacts")
 
@@ -37,7 +37,7 @@ defmodule Contacts.RouterTest do
     assert conn.resp_body == "[]"
   end
 
-  test "post '/contacts' returns 201 and creates the contact", %{body: body} do
+  test "POST '/contacts' returns 201 and creates the contact", %{body: body} do
     # Create a test connection
     conn = conn(:post, "/contacts", body)
 
