@@ -75,6 +75,52 @@ defmodule Contacts.RouterTest do
     assert conn.resp_body == expected_contacts_string
   end
 
+  test "GET '/contacts' returns the contacts in pages", %{opts: opts} do
+    to_insert = [
+      %Contacts.Contact{last_name: "Ruffus"},
+      %Contacts.Contact{last_name: "Buffus"},
+      %Contacts.Contact{last_name: "Auri"},
+      %Contacts.Contact{last_name: "Tulio"},
+      %Contacts.Contact{last_name: "Jacinto"}
+    ]
+
+    # Insert the contacts into the db
+    Enum.each(to_insert, fn x ->
+      Contacts.Repo.insert(x)
+    end)
+
+    expected_contacts = [
+      %Contacts.Contact{last_name: "Auri"},
+      %Contacts.Contact{last_name: "Buffus"},
+      %Contacts.Contact{last_name: "Jacinto"},
+      %Contacts.Contact{last_name: "Ruffus"}
+    ]
+    {:ok, expected_contacts_string} = Poison.encode(expected_contacts)
+
+    # Create a test connection
+    conn = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 200
+    assert conn.resp_body == expected_contacts_string
+
+    # Create a test connection
+    conn2 = conn(:get, "/contacts?page=2")
+    {:ok, expected_contacts_string_page_2} = Poison.encode([%Contacts.Contact{last_name: "Tulio"}])
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 200
+    assert conn2.resp_body == expected_contacts_string_page_2
+  end
+
   test "POST '/contacts' returns 201 and creates the contact", %{opts: opts} do
     # Create a test connection
     {:ok, malformed_body} =
