@@ -18,10 +18,16 @@ defmodule Contacts.Repo do
       |> get(last_name)
     end
 
+    @spec insert_resource(map()) :: {atom, map()}
+    def insert_resource(resource) do
+      changeset = Contacts.Contact.changeset(%Contacts.Contact{}, resource)
+      insert(changeset)
+    end
+
     @spec update_with_diff(map(), map()) :: {atom, map()}
     def update_with_diff(resource, diff) do
       changeset = Contacts.Contact.changeset(resource, diff)
-      insert(changeset)
+      update(changeset)
     end
 
     @spec delete_by_last_name(String.t()) :: {atom, map()}
@@ -29,5 +35,12 @@ defmodule Contacts.Repo do
       contact = get_by_last_name(last_name)
       updated_changeset = Contacts.Contact.changeset(contact, %{active: false})
       Contacts.Repo.update(updated_changeset)
+    end
+
+    @spec delete_unactives() :: {atom, any()}
+    def delete_unactives do
+      Enum.map (Contacts.Contact |> Ecto.Query.where(active: false) |> all), fn changeset ->
+        delete(changeset)
+      end
     end
 end
