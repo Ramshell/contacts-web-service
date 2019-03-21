@@ -27,8 +27,8 @@ defmodule Contacts.Router do
     case Contacts.Repo.update_with_diff(%Contacts.Contact{}, Poison.decode!(body)) do
       {:ok, result} ->
         api_resp conn, 201, Poison.encode!(result)
-      {:error, reason} ->
-        api_resp conn, 400, Poison.encode!(reason)
+      {:error, change_set} ->
+        api_resp conn, 400, Poison.encode!(error_map change_set.errors)
     end
   end
 
@@ -65,5 +65,13 @@ defmodule Contacts.Router do
     conn
     |> put_resp_content_type(@content_type)
     |> send_resp(code, result)
+  end
+
+  @spec error_map([{atom, {String.t(), any()}}]) :: map()
+  defp error_map(errors) do
+    Enum.reduce errors, %{}, fn error, res ->
+      {field, {reason, _validations}} = error
+      Map.put(res, field, reason)
+    end
   end
 end

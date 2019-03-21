@@ -68,7 +68,30 @@ defmodule Contacts.RouterTest do
     assert conn.resp_body == expected_contacts_string
   end
 
-  test "POST '/contacts' returns 201 and creates the contact", %{body: body, opts: opts} do
+  test "POST '/contacts' returns 201 and creates the contact", %{opts: opts} do
+    # Create a test connection
+    {:ok, malformed_body} = Poison.encode(%{name: "FirstName", email: "email@sh.com", phone_number: "1234"})
+    conn = conn(:post, "/contacts", malformed_body)
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 400
+
+    conn2 = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 200
+    assert conn2.resp_body == "[]"
+  end
+
+  test "POST '/contacts' returns 400 if the body is not correctly formed", %{body: body, opts: opts} do
     # Create a test connection
     conn = conn(:post, "/contacts", body)
 
