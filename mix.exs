@@ -7,7 +7,8 @@ defmodule Contacts.MixProject do
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
     ]
   end
 
@@ -28,6 +29,12 @@ defmodule Contacts.MixProject do
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+    ]
+  end
+
+  defp aliases do
+    [
+      test: ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate", "test"],
     ]
   end
 end
