@@ -36,4 +36,11 @@ defmodule Contacts.Repo do
       updated_changeset = Contacts.Contact.changeset(contact, %{active: false})
       Contacts.Repo.update(updated_changeset)
     end
+
+    @spec delete_unactives() :: {atom, any()}
+    def delete_unactives do
+      Enum.map (Contacts.Contact |> Ecto.Query.where(active: false) |> all), fn changeset ->
+        delete(changeset)
+      end
+    end
 end
