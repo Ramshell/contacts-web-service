@@ -3,8 +3,9 @@ defmodule Contacts.Router do
   Provides the basic routing of the contacts app.
   """
   use Plug.Router
-
   require Logger
+
+  @content_type "application/json"
 
   plug(Plug.Logger, log: :debug)
   plug(:match)
@@ -16,59 +17,61 @@ defmodule Contacts.Router do
     json_decoder: Poison
   )
 
-  @content_type "application/json"
-
   get "/contacts" do
     contacts = Contacts.Repo.get_all()
-    conn
-    |> put_resp_content_type(@content_type)
-    |> send_resp(200, Poison.encode!(contacts))
+    api_resp conn, 200, Poison.encode!(contacts)
   end
 
   post "/contacts" do
     {:ok, body, _conn} = read_body(conn)
-    {:ok, result} = Contacts.Repo.update_with_diff(%Contacts.Contact{}, Poison.decode!(body))
-    conn
-    |> put_resp_content_type(@content_type)
-    |> send_resp(201, Poison.encode!(result))
+    case Contacts.Repo.insert_resource(Poison.decode!(body)) do
+      {:ok, result} ->
+        api_resp conn, 201, Poison.encode!(result)
+      {:error, change_set} ->
+        api_resp conn, 400, Poison.encode!(error_map change_set.errors)
+    end
   end
 
   get "/contacts/:last_name" do
     case Contacts.Repo.get_by_last_name(last_name) do
       nil ->
-        conn
-        |> put_resp_content_type(@content_type)
-        |> send_resp(404, "not found")
+        api_resp conn, 404, "not found"
       contact ->
-        conn
-        |> put_resp_content_type(@content_type)
-        |> send_resp(200, Poison.encode!(contact))
+        api_resp conn, 200, Poison.encode!(contact)
     end
   end
 
   delete "/contacts/:last_name" do
     {:ok, _updated} = Contacts.Repo.delete_by_last_name(last_name)
-    conn
-    |> put_resp_content_type(@content_type)
-    |> send_resp(204, "")
+    api_resp conn, 204, ""
   end
 
   patch "/contacts/:last_name" do
     {:ok, body, _conn} = read_body(conn)
     case Contacts.Repo.get_by_last_name(last_name) do
       nil ->
-        conn
-        |> put_resp_content_type(@content_type)
-        |> send_resp(404, "not found")
+        api_resp conn, 404, "not found"
       contact ->
         {:ok, result} = Contacts.Repo.update_with_diff(contact, Poison.decode!(body))
-        conn
-        |> put_resp_content_type(@content_type)
-        |> send_resp(204, Poison.encode!(result))
+        api_resp conn, 204, Poison.encode!(result)
     end
   end
 
   match _ do
     send_resp(conn, 404, "not found")
+  end
+
+  defp api_resp(conn, code, result) do
+    conn
+    |> put_resp_content_type(@content_type)
+    |> send_resp(code, result)
+  end
+
+  @spec error_map([{atom, {String.t(), any()}}]) :: map()
+  defp error_map(errors) do
+    Enum.reduce errors, %{}, fn error, res ->
+      {field, {reason, _validations}} = error
+      Map.put(res, field, reason)
+    end
   end
 end

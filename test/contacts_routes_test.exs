@@ -8,7 +8,14 @@ defmodule Contacts.RouterTest do
     # Ensure the database is checkouted
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Contacts.Repo)
 
-    {:ok, body} = Poison.encode(%{name: "FirstName", last_name: "LastName", email: "email@sh.com", phone_number: "1234"})
+    {:ok, body} =
+      Poison.encode(%{
+        name: "FirstName",
+        last_name: "LastName",
+        email: "email@sh.com",
+        phone_number: "1234"
+      })
+
     %{body: body, opts: Contacts.Router.init([])}
   end
 
@@ -45,9 +52,9 @@ defmodule Contacts.RouterTest do
     ]
 
     # Insert the contacts into the db
-    Enum.each to_insert, fn x ->
+    Enum.each(to_insert, fn x ->
       Contacts.Repo.insert(x)
-    end
+    end)
 
     expected_contacts = [
       %Contacts.Contact{last_name: "Auri"},
@@ -68,7 +75,35 @@ defmodule Contacts.RouterTest do
     assert conn.resp_body == expected_contacts_string
   end
 
-  test "POST '/contacts' returns 201 and creates the contact", %{body: body, opts: opts} do
+  test "POST '/contacts' returns 201 and creates the contact", %{opts: opts} do
+    # Create a test connection
+    {:ok, malformed_body} =
+      Poison.encode(%{name: "FirstName", email: "email@sh.com", phone_number: "1234"})
+
+    conn = conn(:post, "/contacts", malformed_body)
+
+    # Invoke the plug
+    conn = Contacts.Router.call(conn, opts)
+
+    # Assert the response and status
+    assert conn.state == :sent
+    assert conn.status == 400
+
+    conn2 = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 200
+    assert conn2.resp_body == "[]"
+  end
+
+  test "POST '/contacts' returns 400 if the body is not correctly formed", %{
+    body: body,
+    opts: opts
+  } do
     # Create a test connection
     conn = conn(:post, "/contacts", body)
 
@@ -91,7 +126,6 @@ defmodule Contacts.RouterTest do
   end
 
   test "GET '/contacts/:lastname' returns 200 and gets the correct contact", %{opts: opts} do
-
     expected_contact = %Contacts.Contact{last_name: "Ruffus"}
     Contacts.Repo.insert(expected_contact)
     {:ok, expected_string_contact} = Poison.encode(expected_contact)
@@ -109,7 +143,6 @@ defmodule Contacts.RouterTest do
   end
 
   test "DELETE '/contacts/:lastname' returns 200 and actually deletes it", %{opts: opts} do
-
     expected_contact = %Contacts.Contact{last_name: "Ruffus"}
     Contacts.Repo.insert(expected_contact)
 
@@ -122,7 +155,6 @@ defmodule Contacts.RouterTest do
     # Assert the response and status
     assert conn.state == :sent
     assert conn.status == 204
-    
     conn2 = conn(:get, "/contacts/Ruffus")
 
     # Invoke the plug
@@ -134,7 +166,6 @@ defmodule Contacts.RouterTest do
   end
 
   test "PATCH '/contacts/:lastname' returns 204 and actually updates it", %{opts: opts} do
-
     contact_to_insert = %Contacts.Contact{last_name: "Ruffus"}
     Contacts.Repo.insert(contact_to_insert)
 
@@ -153,5 +184,15 @@ defmodule Contacts.RouterTest do
     assert conn.state == :sent
     assert conn.status == 204
     assert conn.resp_body == expected_contact_string
+
+    conn2 = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 200
+    assert conn2.resp_body == "[#{expected_contact_string}]"
   end
 end
