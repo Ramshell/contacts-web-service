@@ -2,6 +2,7 @@ defmodule Contacts.Router do
   @moduledoc """
   Provides the basic routing of the contacts app.
   """
+  import Plug.Conn
   use Plug.Router
   require Logger
 
@@ -18,7 +19,10 @@ defmodule Contacts.Router do
   )
 
   get "/contacts" do
-    contacts = Contacts.Repo.get_all()
+    conn = fetch_query_params(conn)
+    page_string = Map.get(conn.params, "page", "1")
+    {page, _non_int} = Integer.parse(page_string)
+    contacts = Contacts.Repo.get_all(page)
     api_resp conn, 200, Poison.encode!(contacts)
   end
 

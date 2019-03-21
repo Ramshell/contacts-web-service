@@ -4,10 +4,15 @@ defmodule Contacts.Repo do
     adapter: Ecto.Adapters.Postgres
     require Ecto.Query
 
-    def get_all() do
+    def get_all(page \\ 1) do
+      {:ok, conf_opt} = conf()
+      p_size = conf_opt[:page_size]
+      offset = p_size * (page - 1)
       Contacts.Contact
       |> Ecto.Query.where(active: true)
       |> Ecto.Query.order_by(:last_name)
+      |> Ecto.Query.limit(^p_size)
+      |> Ecto.Query.offset(^offset)
       |> all
     end
 
@@ -43,4 +48,6 @@ defmodule Contacts.Repo do
         delete(changeset)
       end
     end
+
+    defp conf, do: Application.fetch_env(:contacts_service, __MODULE__)
 end

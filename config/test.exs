@@ -5,6 +5,7 @@ config :contacts_service, Contacts.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  page_size: 4
 
 config :contacts_service, ecto_repos: [Contacts.Repo]
