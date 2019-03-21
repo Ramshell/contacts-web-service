@@ -176,5 +176,15 @@ defmodule Contacts.RouterTest do
     assert conn.state == :sent
     assert conn.status == 204
     assert conn.resp_body == expected_contact_string
+
+    conn2 = conn(:get, "/contacts")
+
+    # Invoke the plug
+    conn2 = Contacts.Router.call(conn2, opts)
+
+    # Assert the response and status
+    assert conn2.state == :sent
+    assert conn2.status == 200
+    assert conn2.resp_body == "[#{expected_contact_string}]"
   end
 end
