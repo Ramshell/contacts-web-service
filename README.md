@@ -22,6 +22,12 @@ $ docker build -t contacts-web-service .
 $ docker run --net=host -t contacts-web-service
 ```
 
+### ... Or via DockerCompose
+
+```bash
+$ docker-compose up -d
+```
+
 ## API Rest
 * _GET_ '/contacts':
 Returns a json iist of all the _contacts_ ordered by **last_name**.

@@ -6,7 +6,7 @@ defmodule Contacts.Repo do
 
     def get_all(page \\ 1) do
       {:ok, conf_opt} = conf()
-      p_size = conf_opt[:page_size]
+      {p_size, _rest} = Integer.parse(conf_opt[:page_size])
       offset = p_size * (page - 1)
       Contacts.Contact
       |> Ecto.Query.where(active: true)
