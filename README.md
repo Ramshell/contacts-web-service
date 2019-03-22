@@ -9,10 +9,17 @@ In order to run this project you'll need to install first:
 * Erlang 21.0
 * Elixir 18
 
-## Run porject
+## Runing
 
 ```bash
-mix run --no-halt
+$ mix run --no-halt
+```
+
+### ... Or via Docker
+
+```bash
+$ docker build -t contacts-web-service .
+$ docker run --net=host -t contacts-web-service
 ```
 
 ## API Rest
