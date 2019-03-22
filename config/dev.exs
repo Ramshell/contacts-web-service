@@ -5,6 +5,6 @@ config :contacts_service, Contacts.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  page_size: 100
+  page_size: "100"
 
 config :contacts_service, ecto_repos: [Contacts.Repo]
