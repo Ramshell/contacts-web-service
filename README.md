@@ -42,7 +42,7 @@ Deletes the contact whose last_name is _:last\_name_
 
 ## Persistance
 
-In order to persist the contacts, this project uses Postgresql. The decision has been made because of two reasons. Firstly, Postgresqsl is a database whose time in the industry (~25 years) has proven its value not only in terms of optimization but also in terms of reliability. Lastly, because it is open source, which makes this project easier licence.
+In order to persist the contacts, this project uses Postgresql. The decision has been made because of two reasons. Firstly, Postgresqsl is a database whose time in the industry (~25 years) has proven its value not only in terms of optimization but also in terms of reliability. Lastly, because it is open source, which makes this project easier to licence.
 
 ## Considerations of the Contacts model
 
